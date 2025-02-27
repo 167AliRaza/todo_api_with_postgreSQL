@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI, Depends, HTTPException    # type: ignore
+from sqlalchemy.orm import Session  # type: ignore
 from config.database import SessionLocal, engine
 from models.todo import Todo
-from pydantic import BaseModel
+from pydantic import BaseModel      # type: ignore
 from typing import List
 
 # Create database tables
@@ -29,7 +29,7 @@ class TodoCreate(BaseModel):
 
 def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
     try:
-        db_todo = Todo(title=todo.title, description=todo.description)
+        db_todo = Todo( title=todo.title, description=todo.description)
         db.add(db_todo)
         db.commit()
         db.refresh(db_todo)
@@ -88,3 +88,8 @@ def delete_todo(todo_id: int, db: Session = Depends(get_db)):
 # uv run alembic revision --autogenerate -m "create todos table"
 
 # alembic upgrade head
+@app.delete("/todos")
+def delete_all_todos(db: Session = Depends(get_db)):
+    db.query(Todo).delete()
+    db.commit()
+    return {"message": "All Todos deleted"}
